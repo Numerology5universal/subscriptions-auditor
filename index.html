@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscriptions Auditor - Find Money You're Wasting</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f9f9f7 0%, #f5f3ed 100%);
+      color: #2c2c2a;
+      min-height: 100vh;
+    }
+    .app {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .header {
+      background: linear-gradient(135deg, #185fa5 0%, #0c447c 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 600; }
+    .header p { margin: 0.5rem 0 0; opacity: 0.9; font-size: 14px; }
+    .content { padding: 2rem 1.5rem; }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 13px;
+      font-weight: 500;
+      color: #2c2c2a;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 11px 12px;
+      border: 0.5px solid #d3d1c7;
+      border-radius: 8px;
+      font-size: 15px;
+      background: white;
+      color: #2c2c2a;
+      transition: all 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #185fa5;
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+    }
+    button {
+      width: 100%;
+      padding: 12px 16px;
+      background: #185fa5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { background: #0c447c; }
+    button:active { transform: scale(0.98); }
+    .button-secondary {
+      background: white;
+      color: #185fa5;
+      border: 0.5px solid #185fa5;
+      margin-top: 1rem;
+    }
+    .button-secondary:hover { background: #f9f9f7; }
+    .loading-screen {
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e6f1fb;
+      border-top-color: #185fa5;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #e6f1fb 0%, #d9eaf8 100%);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      border: 0.5px solid #85b7eb;
+    }
+    .stat-card .number {
+      font-size: 28px;
+      font-weight: 700;
+      color: #185fa5;
+      margin-bottom: 0.5rem;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: #0c447c;
+      font-weight: 500;
+    }
+    .subscription-item {
+      background: #f9f9f7;
+      border: 0.5px solid #d3d1c7;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .subscription-item:hover {
+      background: #f5f3ed;
+      border-color: #b4b2a9;
+    }
+    .subscription-info h3 {
+      margin: 0 0 0.25rem;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2c2c2a;
+    }
+    .subscription-info p {
+      margin: 0;
+      font-size: 12px;
+      color: #888780;
+    }
+    .price-tag {
+      background: #faeeda;
+      color: #633806;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .success-banner {
+      background: linear-gradient(135deg, #eaf3de 0%, #e0edd1 100%);
+      border: 0.5px solid #97c459;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: #3b6d11;
+    }
+    .success-banner h2 {
+      margin: 0 0 0.5rem;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .success-banner p {
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .export-btn {
+      background: white;
+      color: #185fa5;
+      border: 0.5px solid #185fa5;
+      margin-top: 1.5rem;
+    }
+    .export-btn:hover { background: #f9f9f7; }
+    .demo-badge {
+      display: inline-block;
+      background: #faeeda;
+      color: #633806;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- LOGIN SCREEN -->
+    <div class="screen active" id="screen-login">
+      <div class="header">
+        <h1>Subscriptions Auditor</h1>
+        <p>Find the money you're accidentally wasting</p>
+      </div>
+      <div class="content">
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="email" placeholder="name@gmail.com" value="demo@gmail.com">
+        </div>
+        <button onclick="startScan()">Connect Gmail & Scan</button>
+        <p style="font-size: 12px; color: #888780; text-align: center; margin-top: 1rem;">
+          We read emails with "charge," "renewal," or "billing" only. No passwords stored.
+        </p>
+        <p style="font-size: 11px; color: #888780; text-align: center; margin-top: 0.5rem;">
+          This demo uses sample data. Add real Gmail OAuth to scan actual emails.
+        </p>
+      </div>
+    </div>
+
+    <!-- SCANNING SCREEN -->
+    <div class="screen" id="screen-scanning">
+      <div class="header">
+        <h1>Scanning</h1>
+      </div>
+      <div class="loading-screen">
+        <div class="spinner"></div>
+        <h2 style="font-size: 16px; margin: 0 0 0.5rem; color: #2c2c2a;">Reading your emails</h2>
+        <p style="color: #888780; font-size: 13px; margin: 0;">
+          Searching for subscription charges...
+        </p>
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div class="screen" id="screen-results">
+      <div class="header">
+        <h1>Found subscriptions</h1>
+      </div>
+      <div class="content">
+        <div class="success-banner">
+          <h2>You're spending <span id="monthly-spend">$187</span>/month</h2>
+          <p>That's <span id="annual-spend">$2,244</span>/year</p>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="number" id="sub-count">12</div>
+            <div class="label">Active subs</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="potential-save">~$150</div>
+            <div class="label">You could save</div>
+          </div>
+        </div>
+
+        <h3 style="margin: 0 0 1rem; font-size: 14px; font-weight: 600;">Your subscriptions</h3>
+        <div id="subscriptions-list"></div>
+
+        <button class="export-btn" onclick="exportCSV()">
+          ↓ Download as CSV
+        </button>
+
+        <p style="font-size: 12px; color: #888780; text-align: center; margin-top: 1rem;">
+          💡 Tap any subscription to see cancel options
+        </p>
+
+        <div class="demo-badge">DEMO MODE</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUBSCRIPTIONS = [
+      { name: 'Netflix', price: 17.99, type: 'Entertainment', last: 'Sept 1' },
+      { name: 'Spotify Premium', price: 16.99, type: 'Music', last: 'Sept 5' },
+      { name: 'Adobe Creative Cloud', price: 29.99, type: 'Design', last: 'Sept 10' },
+      { name: 'Figma Pro', price: 12, type: 'Design', last: 'Aug 22' },
+      { name: 'iCloud+ 200GB', price: 2.99, type: 'Cloud', last: 'July 15' },
+      { name: 'Notion Personal', price: 10, type: 'Productivity', last: 'June 1' },
+      { name: 'Grammarly Premium', price: 12, type: 'Writing', last: 'Sept 12' },
+      { name: 'Skillshare', price: 9.99, type: 'Learning', last: 'Feb 1' },
+      { name: 'Disney+', price: 7.99, type: 'Entertainment', last: 'Sept 5' },
+      { name: 'Dropbox Plus', price: 11.99, type: 'Cloud', last: 'Sept 3' },
+      { name: 'GitHub Pro', price: 4, type: 'Development', last: 'Sept 8' },
+      { name: 'Canva Pro', price: 12.99, type: 'Design', last: 'Sept 2' }
+    ];
+
+    function startScan() {
+      showScreen('screen-scanning');
+      setTimeout(() => {
+        showResults();
+        showScreen('screen-results');
+      }, 2500);
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showResults() {
+      const monthly = SUBSCRIPTIONS.reduce((sum, s) => sum + s.price, 0);
+      const annual = monthly * 12;
+      const savings = Math.max(50, Math.round(monthly * 0.7 / 10) * 10);
+
+      document.getElementById('monthly-spend').textContent = '$' + monthly.toFixed(2);
+      document.getElementById('annual-spend').textContent = '$' + annual.toFixed(0);
+      document.getElementById('sub-count').textContent = SUBSCRIPTIONS.length;
+      document.getElementById('potential-save').textContent = '~$' + savings;
+
+      const list = document.getElementById('subscriptions-list');
+      list.innerHTML = SUBSCRIPTIONS.map((s, i) => `
+        <div class="subscription-item" onclick="showDetail('${s.name}', ${s.price})">
+          <div class="subscription-info">
+            <h3>${s.name}</h3>
+            <p>${s.type} • Last charge: ${s.last}</p>
+          </div>
+          <div class="price-tag">$${s.price.toFixed(2)}/mo</div>
+        </div>
+      `).join('');
+    }
+
+    function showDetail(name, price) {
+      alert(`${name} ($${price}/month)\n\nOptions:\n✓ Keep subscription\n✗ Cancel subscription\n\nTo auto-cancel, upgrade to premium ($3.99/month)`);
+    }
+
+    function exportCSV() {
+      const csv = [
+        ['Name', 'Price/Month', 'Category', 'Last Charge'].join(','),
+        ...SUBSCRIPTIONS.map(s => [s.name, '$' + s.price, s.type, s.last].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'subscriptions.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

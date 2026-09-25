@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscriptions Auditor - Find & Cancel Forgotten Subscriptions</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #2c2c2a;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #185fa5 0%, #0c447c 100%);
+      color: white;
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { font-size: 48px; margin-bottom: 1rem; font-weight: 700; }
+    header p { font-size: 18px; opacity: 0.95; margin-bottom: 2rem; }
+    .cta-button {
+      display: inline-block;
+      background: white;
+      color: #185fa5;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+    /* Hero Section */
+    .hero {
+      padding: 4rem 1.5rem;
+      background: linear-gradient(135deg, #f9f9f7 0%, #f5f3ed 100%);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .hero h2 { font-size: 32px; margin-bottom: 1.5rem; }
+    .hero ul { list-style: none; }
+    .hero li {
+      font-size: 16px;
+      margin-bottom: 1rem;
+      padding-left: 2rem;
+      position: relative;
+    }
+    .hero li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #639922;
+      font-weight: 600;
+      font-size: 20px;
+    }
+    .stats {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .stat {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      color: #185fa5;
+      margin-bottom: 0.5rem;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #888780;
+    }
+
+    /* How It Works */
+    .how-it-works {
+      padding: 4rem 1.5rem;
+    }
+    .how-it-works h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 3rem;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    .step {
+      text-align: center;
+    }
+    .step-number {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      background: #185fa5;
+      color: white;
+      border-radius: 50%;
+      line-height: 50px;
+      font-weight: 700;
+      font-size: 24px;
+      margin-bottom: 1rem;
+    }
+    .step h3 { font-size: 18px; margin-bottom: 0.5rem; }
+    .step p { color: #888780; font-size: 14px; }
+
+    /* Benefits */
+    .benefits {
+      background: linear-gradient(135deg, #eaf3de 0%, #e0edd1 100%);
+      padding: 4rem 1.5rem;
+    }
+    .benefits h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 3rem;
+    }
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    .benefit {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 4px solid #639922;
+    }
+    .benefit h3 { margin-bottom: 0.5rem; color: #3b6d11; }
+    .benefit p { color: #888780; font-size: 14px; }
+
+    /* Pricing */
+    .pricing {
+      padding: 4rem 1.5rem;
+    }
+    .pricing h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 3rem;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .price-card {
+      border: 0.5px solid #d3d1c7;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .price-card.featured {
+      border: 2px solid #185fa5;
+      box-shadow: 0 10px 30px rgba(24, 95, 165, 0.15);
+      transform: scale(1.05);
+    }
+    .price-card h3 { font-size: 20px; margin-bottom: 1rem; }
+    .price { font-size: 32px; font-weight: 700; color: #185fa5; margin-bottom: 1rem; }
+    .price-desc { color: #888780; font-size: 13px; margin-bottom: 1.5rem; }
+    .price-card ul {
+      list-style: none;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    .price-card li {
+      padding: 0.5rem 0;
+      font-size: 14px;
+      color: #2c2c2a;
+    }
+    .price-card li:before {
+      content: "✓";
+      color: #639922;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, #185fa5 0%, #0c447c 100%);
+      color: white;
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+    .cta-section h2 { font-size: 32px; margin-bottom: 1rem; }
+    .cta-section p { font-size: 16px; margin-bottom: 2rem; opacity: 0.95; }
+    .cta-white {
+      display: inline-block;
+      background: white;
+      color: #185fa5;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .cta-white:hover { transform: translateY(-2px); }
+
+    /* Footer */
+    footer {
+      background: #2c2c2a;
+      color: white;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 { font-size: 32px; }
+      .hero-grid, .steps, .benefit-grid, .pricing-grid { grid-template-columns: 1fr; }
+      .price-card.featured { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <h1>Subscriptions Auditor</h1>
+      <p>Find the subscriptions you forgot about—and save $100-150/year instantly</p>
+      <a href="subscriptions-auditor.html" class="cta-button">Launch App (Free)</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <h2>Discover Hidden Subscriptions</h2>
+          <p style="font-size: 16px; margin-bottom: 2rem; color: #888780;">
+            You probably have subscriptions you forgot about. Netflix, Spotify, Adobe, Figma—they add up fast.
+          </p>
+          <ul>
+            <li>Find all your subscriptions in under 2 minutes</li>
+            <li>See exactly how much you're spending per month</li>
+            <li>Identify which ones you don't actually use</li>
+            <li>Download a list to track or cancel</li>
+            <li>Save $100-$200+ per year immediately</li>
+          </ul>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-number">$187</div>
+            <div class="stat-label">Average monthly spend (demo data)</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">$2,244</div>
+            <div class="stat-label">That's annually</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">~$150</div>
+            <div class="stat-label">Typical savings found</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Connect Gmail</h3>
+          <p>We securely read your email to find charges and renewals</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Scan & Analyze</h3>
+          <p>We extract subscription names, amounts, and dates</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Review & Export</h3>
+          <p>See your full list, then export as CSV to track</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section class="benefits">
+    <div class="container">
+      <h2>Why This Matters</h2>
+      <div class="benefit-grid">
+        <div class="benefit">
+          <h3>💰 Save Money</h3>
+          <p>Average user finds $100-200 in annual waste and cancels unused subscriptions</p>
+        </div>
+        <div class="benefit">
+          <h3>⏱️ Save Time</h3>
+          <p>Instead of manually checking each card statement, we do it in 2 minutes</p>
+        </div>
+        <div class="benefit">
+          <h3>🔒 Privacy First</h3>
+          <p>We only read email headers for "charge" and "billing." No passwords stored</p>
+        </div>
+        <div class="benefit">
+          <h3>📊 Clear Data</h3>
+          <p>Export your subscriptions as CSV to share, backup, or track over time</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing">
+    <div class="container">
+      <h2>Simple Pricing</h2>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Free</h3>
+          <div class="price">$0</div>
+          <div class="price-desc">Forever</div>
+          <ul>
+            <li>Scan your emails</li>
+            <li>See all subscriptions</li>
+            <li>Export as CSV</li>
+            <li>Desktop & mobile</li>
+          </ul>
+          <a href="subscriptions-auditor.html" class="cta-button" style="display: inline-block; width: auto;">Launch Free App</a>
+        </div>
+        <div class="price-card featured">
+          <h3>Premium</h3>
+          <div class="price">$3.99<span style="font-size: 16px;">/mo</span></div>
+          <div class="price-desc">Coming soon</div>
+          <ul>
+            <li>Everything in Free +</li>
+            <li>Auto-cancel subscriptions</li>
+            <li>Weekly scan updates</li>
+            <li>Price negotiation tips</li>
+            <li>Priority support</li>
+          </ul>
+          <button style="padding: 12px 24px; background: #185fa5; color: white; border: none; border-radius: 8px; cursor: not-allowed; opacity: 0.5;">Coming Soon</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Find Your Hidden Subscriptions Today</h2>
+      <p>It takes 2 minutes. Free forever. No credit card needed.</p>
+      <a href="subscriptions-auditor.html" class="cta-white">Launch the App</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2024 Subscriptions Auditor. Privacy First. No tracking. No ads. Built with ❤️</p>
+    </div>
+  </footer>
+</body>
+</html>
